@@ -75,4 +75,63 @@ public class EmpleadoControlador {
         }
         return new EmpleadoBase(cedula, nombre, salarioBase);
     }
+
+    public String agregarEmpleado(String cedula, String nombre, String salario,
+                                  String tipo, String bonificacion) {
+        String error = validar(cedula, nombre, salario, tipo, bonificacion);
+        if (error !=null) {
+            return error;
+        }
+        EmpleadoBase nuevo = construirEmpleado(cedula, nombre, salario, tipo, bonificacion);
+        if (repositorio.agregar(nuevo)) {
+            historial.add("AGREGADO: " + cedula + "-" + nombre);
+            return "Empleado agregados correctamente";
+        }
+        return "Ya existe un empleado con la cedula" + cedula + ".";
+    }
+
+    public EmpleadoBase buscarEmpleado(String cedula) {
+        historial.add("BUSQUEDA: " + cedula);
+        return repositorio.buscar(cedula);
+    }
+
+    public String actualizarEmpleado(String cedula, String nombre, String salario,
+                                     String tipo, String bonificacion) {
+        String error = validar(cedula, nombre, salario, tipo, bonificacion);
+        if (error != null) {
+            return error;
+        }
+        EmpleadoBase actualizado =
+                construirEmpleado(cedula, nombre, salario, tipo, bonificacion);
+        if (repositorio.actualizar(actualizado)) {
+            historial.add("ACTUALIZADO: " + cedula + "-" + nombre);
+            return "Empleado actualizado correctamente";
+        }
+
+        return "No existe ningún empleado con la cédula " + cedula + ".";
+    }
+
+    public String eliminarEmpleado(String cedula) {
+        if (repositorio.eliminar(cedula)) {
+            historial.add("ELIMINADO: " + cedula);
+            return "Empleado eliminado correctamente";
+        }
+
+        return "No existe ningún empleado con la cédula " + cedula + ".";
+    }
+    public ArrayList<EmpleadoBase> obtenerEmpleados() {
+        return repositorio.listarTodos();
+    }
+
+    public double calcularTotalNomina() {
+        double total = 0;
+        for (EmpleadoBase empleado : repositorio.listarTodos()) {
+            total += empleado.calcularSalarioTotal();
+        }
+        return total;
+    }
+
+    public ArrayList<String> obtenerHistorial() {
+        return historial;
+    }
 }
